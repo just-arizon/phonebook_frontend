@@ -5,13 +5,15 @@ import Persons from "./components/Persons";
 // import axios from 'axios'
 import personService from "./services/persons";
 import Notification from "./components/Notification";
+import Validator from "./components/Validator";
 
 function App() {
-  const [persons, setPersons] = useState([]);
+  const [persons, setPersons] = useState(null);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Data fetching
   useEffect(() => {
@@ -23,14 +25,14 @@ function App() {
   // Function to submit a name
   const handleSubmit = (event) => {
     event.preventDefault();
-  
+
     if (!newName.trim() || !newNumber.trim()) {
       alert("Both name and number are required.");
       return;
     }
-  
+
     const existingPerson = persons.find((person) => person.name === newName);
-  
+
     if (existingPerson) {
       const result = window.confirm(
         `${newName} is already added to the phonebook, replace the old number with a new one?`
@@ -57,15 +59,22 @@ function App() {
       }
       return;
     }
-  
+
     const personObject = {
       name: newName,
       number: newNumber,
     };
-  
+
     personService
       .create(personObject)
       .then((returnedPerson) => {
+        console.log("Response from API:", returnedPerson);
+
+        if (!returnedPerson || !returnedPerson.name) {
+          alert("Error: The response is missing data.");
+          return;
+        }
+
         setPersons(persons.concat(returnedPerson));
         setSuccessMessage(`Added ${returnedPerson.name}`);
         setTimeout(() => setSuccessMessage(null), 5000);
@@ -73,11 +82,15 @@ function App() {
         setNewNumber("");
       })
       .catch((error) => {
-        console.error("Error adding person:", error);
-        alert("An error occurred while adding the contact.");
+        // console.error("Error adding person:", error);
+        // alert("An error occurred while adding the contact.");
+        setErrorMessage(error.response.data.error),
+        setTimeout(() =>          
+          setErrorMessage(null),
+          5000
+        );
       });
   };
-  
 
   // Function to handle name input
   const handleNameChange = (event) => {
@@ -114,7 +127,7 @@ function App() {
           setPersons(persons.filter((person) => person.id !== id));
           setSuccessMessage(`${person.name} was deleted successfully.`);
           setTimeout(() => {
-            setSuccessMessage(null)
+            setSuccessMessage(null);
           }, 5000);
         })
         .catch((error) => {
@@ -137,9 +150,15 @@ function App() {
         });
     }
   };
+
+  if (persons === null) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Validator message={errorMessage} />
       <Notification message={successMessage} />
       <SearchComponent
         handleSearchChange={handleSearchChange}

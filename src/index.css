@@ -1,9 +1,20 @@
 .success{
-    color: green;
+    color: light-green;
     background: lightgrey;
     font-size: 20px;
-    border-style: solid;
+    border: 4px solid rgb(13, 239, 13);
     border-radius: 5px;
-    padding: 10px;
+    padding: 15px 10px;
     margin-bottom: 10px;
+    color: green;
+  }
+.error{
+    color: light-green;
+    background: lightgrey;
+    font-size: 20px;
+    border: 4px solid rgb(243, 2, 62);
+    border-radius: 5px;
+    padding: 15px 10px;
+    margin-bottom: 10px;
+    color: rgb(243, 4, 64);
   }
